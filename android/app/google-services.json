@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "828304173712",
+    "firebase_url": "https://fluttercosco.firebaseio.com",
+    "project_id": "fluttercosco",
+    "storage_bucket": "fluttercosco.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:828304173712:android:2f5869a94413b99b",
+        "android_client_info": {
+          "package_name": "com.example.fluttercosco"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "828304173712-iigmem28e0upoipo612kq3h36k5b9c8k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBiWRMOcOWfOd51n9nVDf3ZQ1LBY9pgMA0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
