@@ -4,9 +4,11 @@ import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cosco/image.dart';
 import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
 
+//firebaseに保存されるテキスト。const再代入不可な変数。const変数が指す先のメモリ領域も変更不可
 const String kTestString = 'Hello world!';
 
 void main() async {
@@ -22,6 +24,8 @@ void main() async {
     ),
   );
   final FirebaseStorage storage = FirebaseStorage(
+
+    //自分のstorageURL
       app: app, storageBucket: 'gs://fluttercosco.appspot.com');
   runApp(MyApp(storage: storage));
 }
@@ -52,12 +56,18 @@ class _MyHomePageState extends State<MyHomePage> {
   List<StorageUploadTask> _tasks = <StorageUploadTask>[];
 
   Future<Null> _uploadFile() async {
+    //タイムスタンプベースのUUIDを生成して返す
     final String uuid = Uuid().v1();
     final Directory systemTempDir = Directory.systemTemp;
+
+    //ファイル名。uuidを毎回生成して名前を変えて保存している
     final File file = await File('${systemTempDir.path}/foo$uuid.txt').create();
+
+    //await非同期処理
     await file.writeAsString(kTestString);
     assert(await file.readAsString() == kTestString);
     final StorageReference ref =
+    //保存先のフォルダ名
     widget.storage.ref().child('text').child('foo$uuid.txt');
     final StorageUploadTask uploadTask = ref.putFile(
       file,
@@ -72,6 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  //Future内非同期処理
   Future<Null> _downloadFile(StorageReference ref) async {
     final String url = await ref.getDownloadURL();
     final String uuid = Uuid().v1();
@@ -127,7 +138,10 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       body: ListView(
-        children: children,
+        //children: children,
+          children: <Widget>[
+          ImageInput(),
+      ]
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _uploadFile,
@@ -136,6 +150,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+
+
 }
 
 class UploadTaskListTile extends StatelessWidget {
