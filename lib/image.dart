@@ -1,11 +1,13 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 //画像を表示するのに必要
 import 'package:image_picker/image_picker.dart';
 
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:uuid/uuid.dart';
 
 //iosで画像投稿するにはios/Runner/imfo.plistに以下を追記。
 //  <key>NSPhotoLibraryUsageDescription</key>
@@ -13,11 +15,14 @@ import 'package:firebase_storage/firebase_storage.dart';
 //	<key>NSCameraUsageDescription</key>
 //	<string>Image is used as a poroduct image.</string>
 
+class _FormData {
+  String comment;
+  DateTime date = DateTime.now();
+  String url;
+}
+
+
 class ImageInput extends StatefulWidget {
-//  final Function setImage;
-//  final Product product;
-//
-//  ImageInput(this.setImage, this.product);
 
   @override
   State<StatefulWidget> createState() {
@@ -26,6 +31,7 @@ class ImageInput extends StatefulWidget {
 }
 
 class _ImageInputState extends State<ImageInput> {
+
 
   //選んだ写真が格納される場所
   File _imageFile;
@@ -127,32 +133,16 @@ class _ImageInputState extends State<ImageInput> {
         //写真をfirebaseに保存する処理
         _imageFile == null? Text('写真選択して'):enableUpload(),
 
-//        //画像を投稿している
-//        _imageFile == null
-//
-//        //写真が選択されていないときの処理。textを表示している
-//            ? Text('Please pick an image.')
-//
-//        //写真が選択されているときの処理。写真を表示している
-//            : Image.file(
-//          _imageFile,
-//
-//          //画面に写真の大きさを合わせる処理。写真サイズをトリミングする
-//          fit: BoxFit.cover,
-//
-//          //写真の縦の長さ
-//          height: 300.0,
-//
-//          //写真の横幅とデバイスの横幅を等しくする処理
-//          width: MediaQuery.of(context).size.width,
-//          alignment: Alignment.topCenter,
-//        )
       ],
     );
   }
 
   //画像表示してfirebaseに保存。
   Widget enableUpload(){
+
+    //保存する写真の名前を変更するためにUUIDを生成している
+    final String uuid = Uuid().v1();
+
     return Container(
       child: Column(
         children: <Widget>[
@@ -163,9 +153,11 @@ class _ImageInputState extends State<ImageInput> {
             textColor: Colors.white,
             color: Colors.blue,
             onPressed: (){
-              final StorageReference firebaseStorageRef =
-                  FirebaseStorage.instance.ref().child('myimage.jpeg');
-              final StorageUploadTask task = firebaseStorageRef.putFile(_imageFile);
+//
+              uploadImage();
+
+              //画面遷移
+              Navigator.of(context).pushNamed("/timeline");
             },
           )
         ]
@@ -174,7 +166,38 @@ class _ImageInputState extends State<ImageInput> {
 
   }
 
+  Future<String> uploadImage() async{
+    
+    DocumentReference _mainReference;
+    _mainReference = Firestore.instance.collection('posts').document();
+    
+    //_imageFileに格納されている画像をfirebaseに保存している。
+    final StorageReference firebaseStorageRef =
+    //imageフォルダの中に写真を保存している
+    FirebaseStorage.instance.ref().child('image').child('image.jpeg');
+    final StorageUploadTask task = firebaseStorageRef.putFile(_imageFile);
+
+    //写真のurlをダウンロードしている
+    var downUrl = await (await task.onComplete).ref.getDownloadURL();
+
+    //urlに写真のURLを格納
+    var url = downUrl.toString();
+
+    print("download url : $url");
+
+    _mainReference.setData({
+      "url": url
+    });
+
+
+    return url;
+
+  }
+
+
 
 
 
 }
+
+
